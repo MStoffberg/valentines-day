@@ -1,0 +1,19 @@
+<svg
+  viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="none"
+  stroke="pink"
+  stroke-width="2"
+>
+  <g transform="translate(100,100)">
+    <circle r="10" fill="pink" />
+    <g id="petals">
+      <path d="M 0,0 C 20,-40 40,-40 60,0" />
+      <path d="M 0,0 C -20,-40 -40,-40 -60,0" />
+      <path d="M 0,0 C 20,40 40,40 60,0" transform="rotate(60)" />
+      <path d="M 0,0 C -20,40 -40,40 -60,0" transform="rotate(60)" />
+      <path d="M 0,0 C 20,40 40,40 60,0" transform="rotate(-60)" />
+      <path d="M 0,0 C -20,40 -40,40 -60,0" transform="rotate(-60)" />
+    </g>
+  </g>
+</svg>

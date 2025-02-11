@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global reset and body styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -15,7 +22,270 @@
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Comic Sans MS', cursive,sans-serif;
+  background: linear-gradient(45deg, #FFB6C1, #FF69B4);
+  color: #FFF;
+  overflow: hidden;
+}
+
+/* Container for the background and content */
+.blur-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Pseudo-element for the blurred background */
+.blur-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/background1.png');
+  background-size: cover; 
+  background-position: center;
+  filter: blur(3px);
+  z-index: -1;
+}
+
+.flower-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.content{
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  color: #FFF;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  flex-direction: column;
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+h1,
+h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 5px 0;
+}
+
+h2 {
+  font-size: 2.5rem;
+  color: #ffffff; /* Bright pink for the "Game Over" text */
+}
+
+h1 {
+  font-family: 'Comic Sans MS', cursive, sans-serif; /* Retro font */
+  font-size: 4rem; /* Large size for emphasis */
+  color: #ff66b2; /* Bright pink color */
+  margin-bottom: 20px;
+  text-align: center; /* Center align text */
+  letter-spacing: 2px; /* Slight spacing for a vintage look */
+  text-transform: uppercase; /* All caps for a bold statement */
+  
+  /* Glow effect */
+  text-shadow: 
+    2px 2px 4px rgba(0, 0, 0, 0.4), /* Soft black shadow for depth */
+    0 0 10px #ff66b2, /* Pink glow around the text */
+    0 0 20px #ff66b2, 
+    0 0 30px #ff66b2, 
+    0 0 40px #ff66b2; /* Stronger pink glow effect */
+
+  /* Subtle blending effect with background */
+  background: linear-gradient(45deg, rgba(255, 102, 178, 0.6), rgba(255, 255, 255, 0.4)); /* Light gradient to blend with the background */
+  -webkit-background-clip: text; /* Ensures the gradient applies only to the text */
+  background-clip: text; 
+
+  animation: pulse 1.5s ease-in-out infinite; /* Subtle pulsing effect */
+}
+
+/* Keyframe animation for the pulsing effect */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1); /* Slight grow effect */
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Canvas styles */
+.canvas-container {
+  background-color: #000;
+  border: 10px solid #FF1493; /* Retro pink border */
+  box-shadow: 0 0 15px rgba(255, 20, 147, 0.5); /* Soft glowing effect */
+  display: block;
+  margin: 20px auto;
+  border-radius: 15px;
+}
+
+canvas {
+  display: block;
+  margin: 0 auto;
+}
+
+button {
+  background-color: #ff80bf; /* Light pink button */
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.1);
+  background-color: #FF1493;
+  box-shadow: 0 0 10px #FF1493, 0 0 30px #FF1493, 0 0 60px #FF1493;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+.logo {
+  display: flex;
+  top: 0;
+  margin: 5;
+  width: 200px;
+  height: 200px;
+  animation: rotateLogo 25s infinite linear;
+}
+
+@keyframes rotateLogo {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-container {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Game controls section */
+.game-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Score & Game Over text */
+.score {
+  font-size: 2rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  color: #FFF;
+}
+
+.game-over {
+  font-size: 2.5rem;
+  color: #FF1493;
+  font-weight: bold;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+  margin-top: 20px;
+}
+
+/* Popup container */
+.popup {
+  position: fixed; /* Fixed position to cover the entire screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  z-index: 1000; /* Ensure it's on top of everything */
+}
+
+/* Popup content */
+.popup-content {
+  background-color: #fff; /* White background */
+  padding: 20px;
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  max-width: 400px; /* Limit width */
+  width: 90%; /* Responsive width */
+  text-align: center; /* Center text */
+  animation: popupFadeIn 0.3s ease-in-out; /* Fade-in animation */
+}
+
+/* Popup heading */
+.popup-content h2 {
+  margin-top: 0;
+  font-size: 24px;
+  color: #333; /* Dark text */
+}
+
+/* Popup paragraph */
+.popup-content p {
+  font-size: 18px;
+  color: #555; /* Medium-dark text */
+  margin: 10px 0;
+}
+
+/* Popup buttons */
+.popup-content button {
+  background-color: #ff69b4; /* Retro pink */
+  color: #fff; /* White text */
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.popup-content button:hover {
+  background-color: #ff1493; /* Brighter pink on hover */
+}
+
+/* Fade-in animation for popup */
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9); /* Start slightly smaller */
+  }
+  to {
+    opacity: 1;
+    transform: scale(1); /* Scale to normal size */
+  }
 }
