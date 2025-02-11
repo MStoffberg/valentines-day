@@ -1,6 +1,7 @@
 "use client"; // Mark as a Client Component
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 
 const SpaceInvaders = () => {
   const canvasRef = useRef(null);
