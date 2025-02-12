@@ -46,6 +46,7 @@ const SpaceInvaders = () => {
             width: 40,
             height: 40,
             img: new Image(),
+            alive:true
           };
           enemy.img.src = enemyImages[Math.floor(Math.random() * enemyImages.length)];
           enemies.push(enemy);
@@ -60,6 +61,7 @@ const SpaceInvaders = () => {
     const handleKeyUp = (e) => (keys[e.key] = false);
 
     const update = () => {
+    
       if (gameOver) return;
 
       // Player movement
@@ -92,10 +94,12 @@ const SpaceInvaders = () => {
             bullet.x < enemy.x + enemy.width &&
             bullet.x + bullet.width > enemy.x &&
             bullet.y < enemy.y + enemy.height &&
-            bullet.y + bullet.height > enemy.y
+            bullet.y + bullet.height > enemy.y &&
+            enemy.alive
           ) {
-            enemies.splice(enemyIndex, 1);
             console.log(enemies)
+            enemy.alive = false;
+            enemies.splice(enemyIndex, 1);
             bullets.splice(bulletIndex, 1);
             hitSound.play();
             setScore((prev) => prev + 100);
@@ -104,9 +108,18 @@ const SpaceInvaders = () => {
       });
 
       // Check if enemies reach the danger line
-      if (enemies.some((enemy) => enemy.y + enemy.height >= dangerLineY)) {
-        setShowGameOverPopup(true);
-        gameOver = true;
+      let anyAliveEnemy = enemies.some((enemy) => enemy.alive);
+      
+      if (anyAliveEnemy) {
+        // Check if any alive enemy has reached or crossed the danger line
+        let enemyCrossedDangerLine = enemies.some(
+          (enemy) => enemy.alive && enemy.y + enemy.height >= dangerLineY
+        );
+        if (enemyCrossedDangerLine) {
+          console.log("Game Over! An enemy reached the danger line.");
+          setShowGameOverPopup(true);
+          gameOver = true;
+        }
       }
 
       // Spawn a new wave when all enemies are defeated
@@ -162,7 +175,7 @@ const SpaceInvaders = () => {
 
   return (
     <div className="game-container">
-      <h1>Space Invaders</h1>
+      <h1>Kitty Space Invaders</h1>
       <div className="canvas-container">
         <canvas ref={canvasRef} width={800} height={600} />
       </div>
@@ -173,6 +186,7 @@ const SpaceInvaders = () => {
         <div className="popup">
           <div className="popup-content">
             <h2>Game Over!</h2>
+            <p>Good job My cutie pie</p>
             <p>Your score: {score}</p>
             <button onClick={() => window.location.reload()}>Restart</button>
             <button onClick={() => (window.location.href = '/')}>Return to Main Menu</button>
@@ -197,17 +211,17 @@ const SpaceInvaders = () => {
         <div className="popup">
           <div className="popup-content">
             <h2>Controls</h2>
-            <p>Move Left: 'A' or Left Arrow</p>
-            <p>Move Right: 'D' or Right Arrow</p>
-            <p>Shoot: Spacebar</p>
+            <p>To Move Left cutie just hit : 'A' or Left Arrow</p>
+            <p>And for Right use these baby: 'D' or Right Arrow</p>
+            <p>To pew pew them use: Spacebar</p>
             <button onClick={() => setShowControls(false)}>Close</button>
           </div>
         </div>
       )}
 
       <div className="game-controls">
-        <button onClick={() => window.location.reload()}>Restart</button>
-        <button onClick={() => setShowControls(true)}>Controls</button>
+        <button onClick={() => window.location.reload()}>reset</button>
+        <button onClick={() => setShowControls(true)}>how to play</button>
         <button onClick={() => (window.location.href = '/')}>Return to Main Menu</button>
       </div>
     </div>
