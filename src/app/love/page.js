@@ -17,7 +17,7 @@ export default function LovePage() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-pink-100 to-purple-200 text-center p-6">
+    <div className="content">
       <motion.h1
         className="text-5xl font-bold text-pink-600 mb-4"
         style={{ scale, rotate }}
@@ -30,7 +30,11 @@ export default function LovePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 1 }}
       >
-        No matter what, you are now my Valentine forever! 💜
+        No matter what, you are now and will always be my Valentine forever! 💜
+        I feel so lucky to have you in my life, Maroo.
+        From the moment we started dating on 23/03/23, 
+        every day has been brighter because of your love. 
+        I love you more than words can say, and I can't wait for all the memories we'll continue to create together, no matter the distance. You are my heart, my everything, and my forever Valentine.
       </motion.p>
 
       {/* Flower Scroll Component */}
