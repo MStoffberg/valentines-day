@@ -1,300 +1,160 @@
-"use client"; // Mark as a Client Component
+'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 
 const SpaceInvaders = () => {
   const canvasRef = useRef(null);
-  const enemiesRef = useRef([]);
   const [score, setScore] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [showControls, setShowControls] = useState(false);
-  const [enemySpeed, setEnemySpeed] = useState(1);
-  const [randomMovement, setRandomMovement] = useState(false);
-  const [hardModeEnabled, setHardModeEnabled] = useState(false);
-  const [enemyBullets, setEnemyBullets] = useState([]);
   const [showGameOverPopup, setShowGameOverPopup] = useState(false);
   const [showWinPopup, setShowWinPopup] = useState(false);
-  const [impactEffects, setImpactEffects] = useState([]);
-
-  // Load images
-  const playerImage = new Image();
-  const enemyImage = new Image();
-  playerImage.src = '/images/kitty-player.png';
-  enemyImage.src = '/images/kitty-enemy.png';
-
-  // Load sound effects
-  const shootSound = new Audio('/sounds/shoot.mp3');
-  const hitSound = new Audio('/sounds/alienshort.mp3');
-
-  // Game variables
-  const player = useRef({
-    x: 0,
-    y: 0,
-    width: 50,
-    height: 50,
-    speed: 5,
-    dx: 0,
-  });
-
-  const bullets = useRef([]);
-  const bulletSpeed = 5;
-
-  const enemyRows = 3;
-  const enemyColumns = 8;
-  const enemyWidth = 40;
-  const enemyHeight = 40;
-  const enemyPadding = 20;
-  const enemyOffsetTop = 30;
-  const enemyOffsetLeft = 30;
-
-  const enemyImages = [
-    "/images/enemys/enemy2.png",
-    "/images/kitty-enemy.png",
-    "/images/enemys/enemy3.png",
-    "/images/enemys/enemy4.png",
-  ];
-
-  // Initialize enemies
-  const initializeEnemies = () => {
-    if (enemiesRef.current.length === 0) {
-      for (let row = 0; row < enemyRows; row++) {
-        for (let col = 0; col < enemyColumns; col++) {
-          const x = col * (enemyWidth + enemyPadding) + enemyOffsetLeft;
-          const y = row * (enemyHeight + enemyPadding) + enemyOffsetTop;
-          const randomImage = enemyImages[Math.floor(Math.random() * enemyImages.length)];
-          enemiesRef.current.push({ x, y, width: enemyWidth, height: enemyHeight, image: randomImage });
-        }
-      }
-    }
-  };
-
-  // Draw player
-  const drawPlayer = (ctx) => {
-    ctx.drawImage(playerImage, player.current.x, player.current.y, player.current.width, player.current.height);
-  };
-
-  // Draw bullets
-  const drawBullets = (ctx) => {
-    ctx.fillStyle = '#FF1493';
-    bullets.current.forEach((bullet) => {
-      ctx.fillRect(bullet.x, bullet.y, 5, 10);
-    });
-  };
-
-  // Draw enemy bullets
-  const drawEnemyBullets = (ctx) => {
-    ctx.fillStyle = '#FF0000';
-    enemyBullets.forEach((bullet) => {
-      ctx.fillRect(bullet.x, bullet.y, 5, 10);
-    });
-  };
-
-  // Draw enemies
-  const drawEnemies = (ctx) => {
-    enemiesRef.current.forEach((enemy) => {
-      const img = new Image();
-      img.src = enemy.image;
-      ctx.drawImage(img, enemy.x, enemy.y, enemy.width, enemy.height);
-    });
-  };
-
-  // Draw impact effects
-  const drawImpactEffects = (ctx) => {
-    impactEffects.forEach((effect, index) => {
-      ctx.fillStyle = 'yellow';
-      ctx.fillRect(effect.x, effect.y, 10, 10);
-      effect.duration--;
-
-      if (effect.duration <= 0) {
-        impactEffects.splice(index, 1);
-      }
-    });
-  };
-
-  // Update player position
-  const updatePlayer = () => {
-    player.current.x += player.current.dx;
-
-    // Prevent player from moving out of bounds
-    if (player.current.x < 0) player.current.x = 0;
-    if (player.current.x + player.current.width > canvasRef.current.width) {
-      player.current.x = canvasRef.current.width - player.current.width;
-    }
-  };
-
-  // Update bullets
-  const updateBullets = () => {
-    bullets.current.forEach((bullet, index) => {
-      bullet.y -= bulletSpeed;
-
-      // Remove bullet if it goes off screen
-      if (bullet.y + 10 < 0) {
-        bullets.current.splice(index, 1);
-      }
-    });
-  };
-
-  // Update enemy bullets
-  const updateEnemyBullets = () => {
-    enemyBullets.forEach((bullet, index) => {
-      bullet.y += bulletSpeed;
-
-      // Remove bullet if it goes off screen
-      if (bullet.y > canvasRef.current.height) {
-        enemyBullets.splice(index, 1);
-      }
-
-      // Check if enemy bullet hits the player
-      if (
-        bullet.x < player.current.x + player.current.width &&
-        bullet.x + 5 > player.current.x &&
-        bullet.y < player.current.y + player.current.height &&
-        bullet.y + 10 > player.current.y
-      ) {
-        setGameOver(true);
-        setShowGameOverPopup(true);
-        hitSound.play();
-      }
-    });
-  };
-
-  // Update enemies
-  const updateEnemies = () => {
-    let enemySpeedLocal = enemySpeed; // Use a local variable for speed
-  
-    enemiesRef.current.forEach((enemy) => {
-      if (randomMovement) {
-        enemy.x += (Math.random() - 0.5) * enemySpeedLocal * 2; // Random movement
-      } else {
-        enemy.x += enemySpeedLocal; // Normal movement
-      }
-  
-      // Reverse direction if enemies hit the edge
-      if (enemy.x + enemy.width > canvasRef.current.width || enemy.x < 0) {
-        enemySpeedLocal *= -1; // Reverse direction locally
-        enemiesRef.current.forEach((e) => {
-          e.y += 20; // Move enemies down
-        });
-      }
-  
-      // Check if enemies reach the player
-      if (enemy.y + enemy.height > player.current.y) {
-        setGameOver(true);
-        setShowGameOverPopup(true);
-      }
-    });
-  
-    // Enemies shoot randomly in Hard Mode
-    if (hardModeEnabled && Math.random() < 0.02) {
-      const randomEnemy = enemiesRef.current[Math.floor(Math.random() * enemiesRef.current.length)];
-      setEnemyBullets((prevBullets) => [
-        ...prevBullets,
-        { x: randomEnemy.x + randomEnemy.width / 2 - 2.5, y: randomEnemy.y + randomEnemy.height },
-      ]);
-    }
-  
-    // Check if all enemies are defeated (win condition)
-    if (enemiesRef.current.length === 0) {
-      setGameOver(true);
-      setShowWinPopup(true);
-    }
-  };
-  // Detect collisions
-  const detectCollisions = () => {
-    bullets.current.forEach((bullet, bulletIndex) => {
-      enemiesRef.current.forEach((enemy, enemyIndex) => {
-        if (
-          bullet.x < enemy.x + enemy.width &&
-          bullet.x + 5 > enemy.x &&
-          bullet.y < enemy.y + enemy.height &&
-          bullet.y + 10 > enemy.y
-        ) {
-          bullets.current.splice(bulletIndex, 1);
-          enemiesRef.current.splice(enemyIndex, 1);
-          setScore((prevScore) => prevScore + 10);
-          hitSound.play();
-          setImpactEffects((prevEffects) => [
-            ...prevEffects,
-            { x: enemy.x + enemy.width / 2 - 5, y: enemy.y + enemy.height / 2 - 5, duration: 10 },
-          ]);
-        }
-      });
-    });
-  };
-
-  // Game loop
-  const gameLoop = (ctx) => {
-    const canvas = canvasRef.current;
-
-    // Ensure the canvas is available
-    if (!canvas || gameOver) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    drawPlayer(ctx);
-    drawBullets(ctx);
-    drawEnemyBullets(ctx);
-    drawEnemies(ctx);
-    drawImpactEffects(ctx);
-
-    updatePlayer();
-    updateBullets();
-    updateEnemyBullets();
-    updateEnemies();
-    detectCollisions();
-
-    requestAnimationFrame(() => gameLoop(ctx));
-  };
-
-  // Handle keyboard input
-  const handleKeyDown = (e) => {
-    if (e.key === 'ArrowLeft' || e.key === 'a') {
-      player.current.dx = -player.current.speed;
-    } else if (e.key === 'ArrowRight' || e.key === 'd') {
-      player.current.dx = player.current.speed;
-    } else if (e.key === ' ') {
-      bullets.current.push({ x: player.current.x + player.current.width / 2 - 2.5, y: player.current.y });
-      shootSound.play();
-    }
-  };
-
-  const handleKeyUp = (e) => {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'a' || e.key === 'd') {
-      player.current.dx = 0;
-    }
-  };
+  const [showControls, setShowControls] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-
-    // Ensure the canvas is available
-    if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
+    canvas.width = 800;
+    canvas.height = 600;
 
-    // Initialize player position
-    player.current.x = canvas.width / 2 - 25;
-    player.current.y = canvas.height - 50;
+    // Load images
+    const playerImage = new Image();
+    playerImage.src = '/images/kitty-player.png';
 
-    // Initialize enemies
-    initializeEnemies();
+    const enemyImages = [
+      '/images/enemys/enemy2.png',
+      '/images/kitty-enemy.png',
+      '/images/enemys/enemy3.png',
+      '/images/enemys/enemy4.png',
+    ];
 
-    // Start game loop
-    const loopId = requestAnimationFrame(() => gameLoop(ctx));
+    // Load sound effects
+    const shootSound = new Audio('/sounds/shoot.mp3');
+    const hitSound = new Audio('/sounds/alienshort.mp3');
 
-    // Add event listeners
+    // Game variables
+    let player = { x: 375, y: 550, width: 50, height: 50, speed: 5 };
+    let bullets = [];
+    let enemies = [];
+    let gameOver = false;
+
+    // Create enemies
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < 8; j++) {
+        let enemy = {
+          x: 50 + j * 60,
+          y: 50 + i * 40,
+          width: 40,
+          height: 40,
+          img: new Image(),
+        };
+        enemy.img.src = enemyImages[Math.floor(Math.random() * enemyImages.length)];
+        enemies.push(enemy);
+      }
+    }
+
+    // Handle key events
+    const keys = {};
+    const handleKeyDown = (e) => {
+      keys[e.key] = true;
+    };
+    const handleKeyUp = (e) => {
+      keys[e.key] = false;
+    };
+
+    // Update game state
+    const update = () => {
+      if (gameOver) return;
+
+      // Player movement
+      if (keys['ArrowLeft'] || keys['a']) player.x -= player.speed;
+      if (keys['ArrowRight'] || keys['d']) player.x += player.speed;
+      if (keys[' ']) {
+        bullets.push({ x: player.x + player.width / 2 - 2, y: player.y, width: 5, height: 10 });
+        shootSound.play();
+        keys[' '] = false; // Prevent holding space for rapid fire
+      }
+
+      // Keep player within bounds
+      if (player.x < 0) player.x = 0;
+      if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
+
+      // Move bullets
+      bullets.forEach((bullet, index) => {
+        bullet.y -= 5;
+        if (bullet.y < 0) bullets.splice(index, 1);
+      });
+
+      // Move enemies down slowly
+      enemies.forEach((enemy) => {
+        enemy.y += 0.2;
+      });
+
+      // Check for collisions
+      bullets.forEach((bullet, bulletIndex) => {
+        enemies.forEach((enemy, enemyIndex) => {
+          if (
+            bullet.x < enemy.x + enemy.width &&
+            bullet.x + bullet.width > enemy.x &&
+            bullet.y < enemy.y + enemy.height &&
+            bullet.y + bullet.height > enemy.y
+          ) {
+            // Collision detected
+            enemies.splice(enemyIndex, 1);
+            bullets.splice(bulletIndex, 1);
+            hitSound.play();
+            setScore((prev) => prev + 100);
+          }
+        });
+      });
+
+      // Check if enemies reach the player
+      if (enemies.some((enemy) => enemy.y + enemy.height >= player.y)) {
+        setShowGameOverPopup(true);
+        gameOver = true;
+      }
+
+      // Win condition
+      if (enemies.length === 0) {
+        setShowWinPopup(true);
+        gameOver = true;
+      }
+    };
+
+    // Draw everything
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw player
+      ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+
+      // Draw bullets
+      ctx.fillStyle = 'red';
+      bullets.forEach((bullet) => {
+        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+      });
+
+      // Draw enemies
+      enemies.forEach((enemy) => {
+        ctx.drawImage(enemy.img, enemy.x, enemy.y, enemy.width, enemy.height);
+      });
+    };
+
+    // Game loop
+    const gameLoop = () => {
+      update();
+      draw();
+      if (!gameOver) requestAnimationFrame(gameLoop);
+    };
+
+    gameLoop();
+
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
     return () => {
-      // Cleanup
-      cancelAnimationFrame(loopId);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [gameOver, gameStarted, enemySpeed, randomMovement, hardModeEnabled, enemyBullets, impactEffects]);
+  }, []);
 
   return (
     <div className="game-container">
@@ -344,16 +204,6 @@ const SpaceInvaders = () => {
       <div className="game-controls">
         <button onClick={() => window.location.reload()}>Restart</button>
         <button onClick={() => setShowControls(true)}>Controls</button>
-        <button
-          onClick={() => {
-            setEnemySpeed((prevSpeed) => prevSpeed + 1);
-            setRandomMovement(true);
-            setHardModeEnabled(true);
-          }}
-          disabled={hardModeEnabled}
-        >
-          {hardModeEnabled ? 'Hard Mode' : 'Increase Difficulty'}
-        </button>
         <button onClick={() => (window.location.href = '/')}>Return to Main Menu</button>
       </div>
     </div>
