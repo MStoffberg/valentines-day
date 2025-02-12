@@ -15,7 +15,6 @@ const SpaceInvaders = () => {
     canvas.width = 800;
     canvas.height = 600;
 
-    // Load images
     const playerImage = new Image();
     playerImage.src = '/images/kitty-player.png';
 
@@ -26,41 +25,40 @@ const SpaceInvaders = () => {
       '/images/enemys/enemy4.png',
     ];
 
-    // Load sound effects
     const shootSound = new Audio('/sounds/shoot.mp3');
     const hitSound = new Audio('/sounds/alienshort.mp3');
 
-    // Game variables
     let player = { x: 375, y: 550, width: 50, height: 50, speed: 5 };
     let bullets = [];
     let enemies = [];
+    let alive = [];
     let gameOver = false;
+    let enemySpeed = 0.3;
+    const dangerLineY = 500;
 
-    // Create enemies
-    for (let i = 0; i < 5; i++) {
-      for (let j = 0; j < 8; j++) {
-        let enemy = {
-          x: 50 + j * 60,
-          y: 50 + i * 40,
-          width: 40,
-          height: 40,
-          img: new Image(),
-        };
-        enemy.img.src = enemyImages[Math.floor(Math.random() * enemyImages.length)];
-        enemies.push(enemy);
+    const spawnEnemies = () => {
+      enemies = [];
+      for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 8; j++) {
+          let enemy = {
+            x: 50 + j * 80,
+            y: 50 + i * 40,
+            width: 40,
+            height: 40,
+            img: new Image(),
+          };
+          enemy.img.src = enemyImages[Math.floor(Math.random() * enemyImages.length)];
+          enemies.push(enemy);
+        }
       }
-    }
+    };
 
-    // Handle key events
+    spawnEnemies();
+
     const keys = {};
-    const handleKeyDown = (e) => {
-      keys[e.key] = true;
-    };
-    const handleKeyUp = (e) => {
-      keys[e.key] = false;
-    };
+    const handleKeyDown = (e) => (keys[e.key] = true);
+    const handleKeyUp = (e) => (keys[e.key] = false);
 
-    // Update game state
     const update = () => {
       if (gameOver) return;
 
@@ -70,12 +68,11 @@ const SpaceInvaders = () => {
       if (keys[' ']) {
         bullets.push({ x: player.x + player.width / 2 - 2, y: player.y, width: 5, height: 10 });
         shootSound.play();
-        keys[' '] = false; // Prevent holding space for rapid fire
+        keys[' '] = false;
       }
 
       // Keep player within bounds
-      if (player.x < 0) player.x = 0;
-      if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
+      player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
 
       // Move bullets
       bullets.forEach((bullet, index) => {
@@ -83,12 +80,12 @@ const SpaceInvaders = () => {
         if (bullet.y < 0) bullets.splice(index, 1);
       });
 
-      // Move enemies down slowly
+      // Move enemies
       enemies.forEach((enemy) => {
-        enemy.y += 0.2;
+        enemy.y += enemySpeed;
       });
 
-      // Check for collisions
+      // Check for bullet collisions
       bullets.forEach((bullet, bulletIndex) => {
         enemies.forEach((enemy, enemyIndex) => {
           if (
@@ -97,8 +94,8 @@ const SpaceInvaders = () => {
             bullet.y < enemy.y + enemy.height &&
             bullet.y + bullet.height > enemy.y
           ) {
-            // Collision detected
             enemies.splice(enemyIndex, 1);
+            console.log(enemies)
             bullets.splice(bulletIndex, 1);
             hitSound.play();
             setScore((prev) => prev + 100);
@@ -106,22 +103,30 @@ const SpaceInvaders = () => {
         });
       });
 
-      // Check if enemies reach the player
-      if (enemies.some((enemy) => enemy.y + enemy.height >= player.y)) {
+      // Check if enemies reach the danger line
+      if (enemies.some((enemy) => enemy.y + enemy.height >= dangerLineY)) {
         setShowGameOverPopup(true);
         gameOver = true;
       }
 
-      // Win condition
+      // Spawn a new wave when all enemies are defeated
       if (enemies.length === 0) {
-        setShowWinPopup(true);
-        gameOver = true;
+        setScore((prev) => prev + 500); // Bonus points for clearing wave
+        enemySpeed += 0.2; // Increase difficulty
+        spawnEnemies();
       }
     };
 
-    // Draw everything
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw danger line
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, dangerLineY);
+      ctx.lineTo(canvas.width, dangerLineY);
+      ctx.stroke();
 
       // Draw player
       ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
@@ -138,7 +143,6 @@ const SpaceInvaders = () => {
       });
     };
 
-    // Game loop
     const gameLoop = () => {
       update();
       draw();
