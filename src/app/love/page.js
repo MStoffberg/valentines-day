@@ -32,9 +32,11 @@ export default function LovePage() {
       >
         No matter what, you are now and will always be my Valentine forever! 💜
         I feel so lucky to have you in my life, Maroo.
-        From the moment we started dating on 23/03/23, 
+        From the moment we started dating, 
         every day has been brighter because of your love. 
-        I love you more than words can say, and I can't wait for all the memories we'll continue to create together, no matter the distance. You are my heart, my everything, and my forever Valentine.
+        I love you more than words can say, 
+        and I can't wait for all the memories we'll continue to create together, 
+        no matter the distance. You are my heart, my everything, and my forever Valentine.
       </motion.p>
 
       {/* Flower Scroll Component */}
